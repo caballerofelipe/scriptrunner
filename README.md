@@ -8,10 +8,10 @@ A small desktop app to run scripts ordered in a tree sequence.
 **Important Note**: see [extras](#Extras) to see a note about Vue DevTools.
 
 - Requirements
- - ([Node.js](https://nodejs.org/))
- - npm (Should come with node)
- - python 3
- - Used Vue CLI version: [4.2.3](https://github.com/vuejs/vue-cli/releases/tag/v4.2.2) .
+	- ([Node.js](https://nodejs.org/))
+	- npm (Should come with node)
+	- python 3
+	- Used Vue CLI version: [4.2.3](https://github.com/vuejs/vue-cli/releases/tag/v4.2.2) .
 
 ## Intro
 This project's goal is to create a desktop application to display a tree graph. Each node in the tree represents some program file to be executed. The tree represents the order in which each node will be executed, starting at the root. In this case the root is on top.
@@ -28,15 +28,15 @@ This is what this project *should* do (*some parts are already working*):
 - Create a graphical tree structure (graph) based on a JSON structure loaded from a file and then managed in the *store* (Vuex).
 - Each node from the tree represents a programming block loaded by a file.
 - Each node is configurable, allowing changes to:
- - The file called when reaching the node.
- - (In discussion) If the file doesn't have any functions it could be run completely (activated by a checkbox).
- - Allow to select which function of the file should be run.
- - Select if this node (and its children) should be run (checkbox).
+	- The file called when reaching the node.
+	- (In discussion) If the file doesn't have any functions it could be run completely (activated by a checkbox).
+	- Allow to select which function of the file should be run.
+	- Select if this node (and its children) should be run (checkbox).
 - The nodes change color depending on state (ran, not ran, to be run).
 - Support these languages:
- - Python 3
- - Matlab
- - R
+	- Python 3
+	- Matlab
+	- R
 - Allow zoom (with buttons).
 - Show current store (toggle with a button) which should be equal (or similar) to the loaded JSON file.
 - Drag and drop nodes to that their parent can be changed.
