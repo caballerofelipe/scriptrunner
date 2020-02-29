@@ -39,6 +39,6 @@ $nodeRowPadding: 10px;
 	white-space: nowrap; /* Whithout this the tree is unordered when there is not enough space. */
 	overflow: auto;
 
-	/* To create tree using flex see the docs. */
+	/* To create tree using flex see https://github.com/caballerofelipe/vuejs_tree/blob/master/README.md#using-css-for-the-tree. */
 }
 </style>

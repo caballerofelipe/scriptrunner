@@ -9,7 +9,6 @@
 			v-bind:style="{ transform: 'scale('+treeZoom+')', transformOrigin: 'left top', width: 'calc(100%/'+treeZoom+')', height: 'calc(100%/'+treeZoom+')' }"
 			/>
 		</div>
-		<controls />
 	</div>
 </template>
 
@@ -18,7 +17,7 @@ import controls from '@/components/controls.vue'
 import nodeRow from '@/components/nodeRow.vue'
 
 export default {
-  name: 'App',
+  name: 'Tree',
   components: {
     controls,
 	nodeRow
