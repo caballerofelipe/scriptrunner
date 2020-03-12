@@ -1,9 +1,9 @@
 <template>
-	<div class='nodeRow'>
-		<node
+	<div class='subTreesRow'>
+		<subTree
 			:node='node'
 			:key='node.id'
-			v-for='node in nodeRow'
+			v-for='node in subTreesRow'
 		/>
 	</div>
 </template>
@@ -13,15 +13,15 @@
 Circular reference note: To avoid a circular reference do not import here.
 Read: https://vuejs.org/v2/guide/components-edge-cases.html#Circular-References-Between-Components
 */
-// import node from './node.vue'
+// import node from './subTree.vue'
 
 export default {
-	name: 'nodeRow',
+	name: 'subTreesRow',
 	components: {
-		node: () => import('@/components/node.vue') /* Read 'Circular reference note' above. */
+		subTree: () => import('@/components/subTree.vue') /* Read 'Circular reference note' above. */
 	},
 	props: [
-		'nodeRow'
+		'subTreesRow'
 	],
 	computed: {},
 	methods: {}
@@ -31,7 +31,7 @@ export default {
 <style lang="scss">
 @import '@/sass/config.scss';
 
-.nodeRow {
+.subTreesRow {
 	background-color: rgba(100,100,255,0.2); /* This is a transluscent color, it is used to see the tree hierarchy. */
 
 	/* For tree creation. */
@@ -39,8 +39,8 @@ export default {
 	white-space: nowrap; /* Whithout this the tree is unordered when there is not enough space. */
 	overflow: auto;
 
-	/* To create hierarchy lines, this is the vertical line from .nodeRow to its parent. */
-	padding-top: $nodeRow_padding;
+	/* To create hierarchy lines, this is the vertical line from .subTreesRow to its parent. */
+	padding-top: $subTreesRow_padding;
 	position: relative;
 	&:before {
 		content: '';
@@ -48,7 +48,7 @@ export default {
 		top: 0;
 		left: calc(50% - #{$hierarchy_line_width/2});
 		width: 0;
-		height: $nodeRow_padding;
+		height: $subTreesRow_padding;
 		border-left: $hierarchy_line_width solid $hierarchy_line_color;
 	}
 	&:after {

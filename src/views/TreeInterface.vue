@@ -3,9 +3,9 @@
 		<controls />
 		<button id="debug_button" @click='showStoreState = !showStoreState'>showStoreState</button><!-- FCG: WARNING/REMOVE for debugging. -->
 		<pre id="debug_pre" v-if='showStoreState'>{{wholeState}}</pre><!-- FCG: WARNING/REMOVE for debugging. -->
-		<div id="treeZone">
-			<nodeRow
-			v-bind:nodeRow='nodeRow'
+		<div id="treeContainer">
+			<subTreesRow
+			v-bind:subTreesRow='subTreesRow'
 			v-bind:style="{ transform: 'scale('+treeZoom+')', transformOrigin: 'left top', width: 'calc(100%/'+treeZoom+')', height: 'calc(100%/'+treeZoom+')' }"
 			/>
 		</div>
@@ -14,17 +14,17 @@
 
 <script>
 import controls from '@/components/controls.vue'
-import nodeRow from '@/components/nodeRow.vue'
+import subTreesRow from '@/components/subTreesRow.vue'
 
 export default {
-  name: 'Tree',
+  name: 'TreeInterface',
   components: {
     controls,
-	nodeRow
+	subTreesRow
   },
 	props: [],
 	computed: {
-		nodeRow(){
+		subTreesRow(){
 			this.$store.commit('assignId'); /* FCG: WARNING/REVIEW This might not be the way to do it, probably must be done in an action after loading the processTree from file. */
 			return this.$store.state.processTree;
 		},
@@ -59,17 +59,17 @@ export default {
 	height: 100%
 }
 
-#treeZone {
+#treeContainer {
 	overflow: hidden; /* Used to make the interface fixed to that nothing moves from its place and for zoom. */
 	flex-grow: 2; /* When the content is small this allows the block to grow and take al available space. */
 
 	/* When displaying hierarchy lines this hides the lines for the first row elements and removes unnecessary space before. */
-	> .nodeRow {
+	> .subTreesRow {
 		padding: 0;
 		&:before, &:after {
 			border: 0;
 		}
-		> .node {
+		> .subTree {
 			&:before, &:after {
 				border: 0;
 			}

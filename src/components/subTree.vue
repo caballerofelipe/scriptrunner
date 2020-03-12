@@ -1,26 +1,28 @@
 <template>
-	<div class="node"
-		@dragstart.stop='dragstart'
-		@dragend.stop='dragend'
-		@dragenter.stop='dragenter'
-		>
-		<div class="nodeBubble" title="Incomplete drag and drop features... see the docs.">
-			{{node.nodeValue}}<br>(id: {{node.id}})
+	<div class="subTree">
+		<div class="nodeAndSubTree"
+			draggable="true"
+			>
+			<div class="node" title="Incomplete drag and drop features... see the docs.">
+				{{node.nodeValue}}<br>(id: {{node.id}})
+			</div>
+			<subTreesRow
+				v-if='node.processTree && node.processTree.length'
+				v-bind:subTreesRow='node.processTree'
+			/>
 		</div>
-		<nodeRow
-			v-if='node.processTree && node.processTree.length'
-			v-bind:nodeRow='node.processTree'
-		/>
 	</div>
 </template>
 
 <script>
-import nodeRow from '@/components/nodeRow.vue'
+import subTreesRow from '@/components/subTreesRow.vue';
+
+let draggedElement = null;
 
 export default {
 	name: 'node',
 	components: {
-		nodeRow
+		subTreesRow
 	},
 	props: [
 		'node'
@@ -29,11 +31,15 @@ export default {
 	},
 	methods: {
 		dragstart(){
+			/* FCG: IMPORTANT: use dragstart parameters to acces the right element. */
+
 			/* FCG: WARNING only works if window.FCG_DEBUG, set it manually in the console. */
 			let theElement = this.$el;
+			draggedElement = this;
 			if(window.FCG_DEBUG){
 				window.console.log('dragstart()')
 				window.console.log(theElement);
+				window.theDraggableNodeContainer = theElement;
 			}
 			// theElement.transform = 'scale('+this.$store.state.processTreeZoom+')'; // Doesn't work
 		},
@@ -45,30 +51,32 @@ export default {
 				window.console.log(theElement)
 			}
 		},
-		dragenter(){
+		dragenter(event){
+		// dragenter(){
+			// Only use the event if the element is not itself or a child
+			if(String(this.node.id).startsWith(draggedElement.node.id)){
+				return;
+			}
 			/* FCG: WARNING only works if window.FCG_DEBUG, set it manually in the console. */
 			let theElement = this.$el;
 			if(window.FCG_DEBUG){
-				window.console.log('dragenter()')
-				window.console.log(this.node.id)
-				window.console.log(theElement)
+				window.console.log('dragenter()');
+				window.console.log(event);
+				window.console.log(this.node.id);
+				window.console.log('theElement', theElement);
+				window.console.log('this.node.id', this.node.id);
+				window.console.log('draggedElement.node.id',draggedElement.node.id);
 			}
 		}
 	},
-	mounted(){
-		let theElement = this.$el;
-		theElement.draggable = true;
-	}
+	mounted(){}
 }
 </script>
 
 <style lang="scss">
 @import '@/sass/config.scss';
 
-.node {
-	padding: $node_padding;
-	font-size:12px;
-
+.subTree {
 	/* For tree creation. */
 	display: inline-block;
 	vertical-align: top;
@@ -94,11 +102,15 @@ export default {
 		height: calc(#{$node_padding} - #{$hierarchy_line_width}); /* To avoid having the line on top of the node. */
 	}
 	&:last-child:after {
-		width: 0px; /* Necessary to avoid nodeRow horizontal scrolling. */
+		width: 0px; /* Necessary to avoid subTreesRow horizontal scrolling. */
 	}
-
 }
-.nodeBubble {
+
+.nodeAndSubTree {
+	padding: $node_padding;
+	font-size:12px;
+}
+.node {
 	background-color: rgba(200,130,210);
 	color: white;
 	border-radius: 100%;
