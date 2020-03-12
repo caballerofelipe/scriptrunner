@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-// Change between large and small processTree, use processTree.{small,large,large.oneParent}
+// Change between large and small processTree, use processTree.{small,small.oneParent,large,large.oneParent}
 import processTree from './processTree/processTree.small.oneParent'
 
 Vue.use(Vuex)

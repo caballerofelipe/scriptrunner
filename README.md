@@ -42,6 +42,7 @@ This is what this project *should* do (*some parts are already working*):
 - Drag and drop nodes to that their parent can be changed.
 - Add nodes under another node.
 - Add other root nodes, this would create multple trees.
+- Add lines to join the bottom of the parent node to the top of a node creating a hierarchical structure.
 
 ## Project setup
 Using instructions from [Vue CLI Plugin Electron Builder](https://github.com/nklayman/vue-cli-plugin-electron-builder) and from Vue.js.

@@ -12,7 +12,5 @@ window.theStore = store; /* FCG: WARNING for debugging purposes. */
 window.vueEL = new Vue({
   router,
   store,
-  render: h => h(App, {
-    // props: {} // Additional stuff for the component
-  })
+  render: h => h(App)
 }).$mount('#app')

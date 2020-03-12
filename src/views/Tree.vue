@@ -62,6 +62,19 @@ export default {
 #treeZone {
 	overflow: hidden; /* Used to make the interface fixed to that nothing moves from its place and for zoom. */
 	flex-grow: 2; /* When the content is small this allows the block to grow and take al available space. */
+
+	/* When displaying hierarchy lines this hides the lines for the first row elements and removes unnecessary space before. */
+	> .nodeRow {
+		padding: 0;
+		&:before, &:after {
+			border: 0;
+		}
+		> .node {
+			&:before, &:after {
+				border: 0;
+			}
+		}
+	}
 }
 
 #debug_button {
