@@ -128,6 +128,11 @@ n)
  ◯ Lint and fix on commit
 ```
 ```bash
+? Pick a unit testing solution:
+  Mocha + Chai
+❯ Jest
+```
+```bash
 ? Where do you prefer placing config for Babel, ESLint, etc.? (Use arrow keys)
 ❯ In dedicated config files
   In package.json
@@ -151,6 +156,9 @@ This is the selections made:
   ^4.0.0
   ^5.0.0
 ❯ ^6.0.0
+```
+``` bash
+? Add tests with Spectron to your project? No
 ```
 
 ### Install `python-shell`
