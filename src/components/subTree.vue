@@ -78,51 +78,52 @@ export default {
 @import '@/sass/config.scss';
 
 .subTree {
-	/* For tree creation. */
-	display: inline-block;
-	vertical-align: top;
+    /* For tree creation. */
+    display: inline-block;
+    vertical-align: top;
 
-	/* To show hierarchy lines. */
-	/* To create hierarchy lines, these are the lines from element to horizontal connecting line and the vertical connecting line. */
-	position: relative;
-	&:before, &:after {
-		content: '';
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 50%;
-		height: $node_padding;
-	}
-	&:after {
-		left: calc(50% - #{$hierarchy_line_width/2});
-		border-left: $hierarchy_line_width solid $hierarchy_line_color;
-	}
-	&:not(:first-child):before,
-	&:not(:last-child):after {
-		border-top: $hierarchy_line_width solid $hierarchy_line_color;
-		height: calc(#{$node_padding} - #{$hierarchy_line_width}); /* To avoid having the line on top of the node. */
-	}
-	&:last-child:after {
-		width: 0px; /* Necessary to avoid subTreesRow horizontal scrolling. */
-	}
+    /* To show hierarchy lines. */
+    /* To create hierarchy lines, these are the lines from element to horizontal connecting line and the vertical connecting line. */
+    position: relative;
+    &:after,
+    &:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 50%;
+        height: $node_padding;
+    }
+    &:after {
+        left: calc(50% - #{$hierarchy_line_width/2});
+        border-left: $hierarchy_line_width solid $hierarchy_line_color;
+    }
+    &:not(:first-child):before,
+    &:not(:last-child):after {
+        border-top: $hierarchy_line_width solid $hierarchy_line_color;
+        height: calc(#{$node_padding} - #{$hierarchy_line_width}); /* To avoid having the line on top of the node. */
+    }
+    &:last-child:after {
+        width: 0px; /* Necessary to avoid subTreesRow horizontal scrolling. */
+    }
 }
 
 .nodeAndSubTree {
-	padding: $node_padding;
-	font-size:12px;
+    padding: $node_padding;
+    font-size:12px;
 }
 .node {
-	background-color: rgba(200,130,210);
-	color: white;
-	border-radius: 100%;
-	width: 120px;
-	height: 120px;
-	padding: 5px;
-	cursor: move;
+    background-color: rgba(200,130,210);
+    color: white;
+    border-radius: 100%;
+    width: $node_width;
+    height: $node_height;
+    padding: 5px;
+    cursor: move;
 
-	/* To center bubble and content. */
-	display: inline-flex;
-	flex-direction: column;
-	justify-content: center;
+    /* To center bubble and content. */
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
 }
 </style>
