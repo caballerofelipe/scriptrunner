@@ -344,7 +344,6 @@ function moveNodeNextToNode(tree, movedNodePathStr, nextToNodePathStr, position,
   if (copyTree === true) {
     tree = JSON.parse(JSON.stringify(tree));
   }
-  /* FCG: REVIEW: maybe do same validations as used functions and throw same message before calling used functions. */
   let movedNodePath = getPathByID(movedNodePathStr, subTreeKey, idDelimiter);
   if (!nodeExists(tree, movedNodePath)) {
     throw `movedNode node doesn't exist (movedNodePathStr[${movedNodePathStr}]).`;
@@ -371,32 +370,3 @@ export default {
   newPathByPosition,
   moveNodeNextToNode
 }
-
-/* FCG: REVIEW PENDING:
-  - Parameterize idDemilimter - '_'
-  - MAYBE, change function signatures to use JSON
-    Instead of
-      moveNodeNextToNode([{},{}], '_0_0', '_0_0', 'below', 'tree', '_');
-    Use
-      moveNodeNextToNode({
-        tree: [{}, {}],
-        movedNodePathStr: '_0_0',
-        nextToNodePathStr: '_0_0',
-        position: 'below',
-        subTreeKey: 'tree',
-        idDelimiter: '_',
-        copyTree: false
-      });
-  - MAYBE Change parameter validation for external function like:
-    isObject_orThrow(tree, 'tree');
-    or
-    throwIfNot_object(tree, 'tree');
-    This would:
-      - DRY:
-          - only one message
-          - only calling a function and no reimplementing validation
-  - If using a class
-    Possible signature for a class
-    let th = new treeHandler(tree, subTreeKey='processTree', idDemilimter='_');
-    th.moveNodeNextToNode(movedNodePathStr, nextToNodePathStr, position, copyTree = false);
-*/
