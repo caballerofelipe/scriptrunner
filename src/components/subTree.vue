@@ -5,6 +5,7 @@
 			>
 			<div class="node" title="Incomplete drag and drop features... see the docs.">
 				{{node.nodeValue}}<br>(id: {{node.id}})
+				<br>Was:<br>{{node.originalID}}
 			</div>
 			<subTreesRow
 				v-if='node.processTree && node.processTree.length'

@@ -44,6 +44,7 @@ export default {
 	},
   beforeCreate: function(){
 		// this.$store.commit('assignId') /* FCG: WARNING/REVIEW This might not be the way to do it, probably must be done in an action after loading the processTree from file. */
+		this.$store.commit('assignOriginalID');
   }
 }
 </script>

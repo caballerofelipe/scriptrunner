@@ -13,7 +13,7 @@ export default new Vuex.Store({
   mutations: {
     /* Used to assign an ID to every node in the tree so that Vue can use one when adding multiple elements */
     assignId(state) {
-      window.theProcessTree = state.processTree;  /* FCG: WARNING for debugging purposes. */
+      window.theProcessTree = state.processTree; /* FCG: WARNING for debugging purposes. */
 
       let parentName = '';
       let mapWithParent = (processTree, parentName) => {
@@ -22,9 +22,17 @@ export default new Vuex.Store({
           mapWithParent(node.processTree, `${parentName}_${index}`)
         })
       }
-      // window.console.log(state.processTree.map(node => node.id)); /* FCG: WARNING for debugging purposes. */
       mapWithParent(state.processTree, parentName);
-      // window.console.log(state.processTree.map(node => node.id)); /* FCG: WARNING for debugging purposes. */
+    },
+    assignOriginalID(state) { /* FCG: REMOVE DEBUG: Use to keep track of original elements position. */
+      let parentName = '';
+      let mapWithParent = (processTree, parentName) => {
+        processTree.map((node, index) => {
+          node.originalID = `${parentName}_${index}`; // OID: used to avoid collision between id and originalID
+          mapWithParent(node.processTree, `${parentName}_${index}`)
+        })
+      }
+      mapWithParent(state.processTree, parentName);
     },
     processTreeZoomBy(state, payload) {
       state.processTreeZoom += 1 * payload.zoomBy;
@@ -33,8 +41,6 @@ export default new Vuex.Store({
       state.processTreeZoom = 1;
     }
   },
-  actions: {
-  },
-  modules: {
-  }
+  actions: {},
+  modules: {}
 })
