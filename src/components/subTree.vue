@@ -4,8 +4,10 @@
 			draggable="true"
 			>
 			<div class="node" title="Incomplete drag and drop features... see the docs.">
-				{{node.nodeValue}}<br>(id: {{node.id}})
-				<br>Was:<br>{{node.originalID}}
+				{{node.nodeValue}}
+				<div style="font-size: 8px; color: lightgreen;"><!-- DEBUG -->
+					(id: <b>{{node.id}}</b><br>initial:<br><b>{{node.originalID}}</b>)
+				</div>
 			</div>
 			<subTreesRow
 				v-if='node.processTree && node.processTree.length'
