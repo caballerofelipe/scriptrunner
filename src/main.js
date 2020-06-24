@@ -10,7 +10,7 @@ window.theStore = store; /* FCG: WARNING for debugging purposes. */
 // window.vueEL = new Vue({...App, store}).$mount('#app') /* FCG: WARNING/REVIEW THIS works! is it a better way?. */
 
 window.vueEL = new Vue({
-  router,
-  store,
-  render: h => h(App)
+    router,
+    store,
+    render: h => h(App)
 }).$mount('#app')
