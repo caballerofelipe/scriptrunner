@@ -10,6 +10,10 @@
 
 <script>
 /*
+Don't do this:
+---------
+import subTreeForInsertion from './subTree.vue'
+---------
 Circular reference note: To avoid a circular reference do not import here.
 Read: https://vuejs.org/v2/guide/components-edge-cases.html#Circular-References-Between-Components
 */
