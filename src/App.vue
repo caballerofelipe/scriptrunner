@@ -10,6 +10,8 @@
 </template>
 
 <style lang="scss">
+@import '@/sass/config.scss';
+
 #app,
 body,
 html {
@@ -18,7 +20,7 @@ html {
 }
 
 #app {
-    font-family: Avenir, Helvetica, Arial, sans-serif;
+    font-family: $app_font_family;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     color: #2c3e50;

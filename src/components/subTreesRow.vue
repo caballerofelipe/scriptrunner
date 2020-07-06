@@ -1,5 +1,5 @@
 <template>
-<div class='subTreesRow'>
+<div class='subTreesRow' :class='{subTreesRowEmpty: subTreesRow.length == 0}'>
     <subTree :node='node' :key='node.id' v-for='node in subTreesRow' />
 </div>
 </template>
@@ -55,5 +55,11 @@ export default {
     }
 
     // To create tree using flex see https://github.com/caballerofelipe/vuejs_tree/blob/master/README.md#using-css-for-the-tree.
+}
+// If the tree is empty this class is used, see template above.
+.subTreesRowEmpty {
+    margin: 0;
+    padding: 0;
+    border: 0;
 }
 </style>

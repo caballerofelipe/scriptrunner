@@ -9,7 +9,9 @@
                 (id: <b>{{node.id}}</b><br>initial:<br><b>{{node.originalID}}</b>)
             </div>
         </div>
-        <subTreesRow v-if='node.processTree && node.processTree.length' v-bind:subTreesRow='node.processTree' />
+        <!-- subTreesRow should always be created as
+        it's used to insert the drop placeholder. -->
+        <subTreesRow v-bind:subTreesRow='node.processTree' />
     </div>
 </div>
 </template>
@@ -76,10 +78,6 @@ export default {
 @import '@/sass/config.scss';
 
 .subTree {
-    border: 1px solid limegreen;
-
-    // font-size: 12px;
-
     // For tree creation.
     display: inline-block;
     vertical-align: top;

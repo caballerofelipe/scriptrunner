@@ -17,18 +17,18 @@ export default {
             this.$store.commit({
                 type: 'processTreeZoomBy',
                 zoomBy: '0.1'
-            })
+            });
         },
         treeZoomOut() {
             this.$store.commit({
                 type: 'processTreeZoomBy',
                 zoomBy: '-0.1'
-            })
+            });
         },
         treeZoomReset() {
             this.$store.commit({
                 type: 'processTreeZoomReset',
-            })
+            });
         }
     }
 }

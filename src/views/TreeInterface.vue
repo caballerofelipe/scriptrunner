@@ -22,7 +22,6 @@ export default {
     props: [],
     computed: {
         subTreesRow() {
-            this.$store.commit('assignId'); /* FCG: WARNING/REVIEW This might not be the way to do it, probably must be done in an action after loading the processTree from file. */
             return this.$store.state.processTree;
         },
         treeZoom() {
@@ -40,15 +39,17 @@ export default {
         }
     },
     beforeCreate: function() {
-        // this.$store.commit('assignId') /* FCG: WARNING/REVIEW This might not be the way to do it, probably must be done in an action after loading the processTree from file. */
-        this.$store.commit('assignOriginalID');
+        this.$store.commit('assignId');
+        this.$store.commit('assignOriginalID'); /* FCG: used for DEBUG. */
     }
 }
 </script>
 
 <style lang="scss">
+@import '@/sass/config.scss';
+
 #treeInterface {
-    font-family: 'Avenir', Helvetica, Arial, sans-serif;
+    font-family: $treeInterface_font_family;
     text-align: center;
 
     // Used to make the interface fixed to that nothing moves from its place
@@ -58,7 +59,7 @@ export default {
 }
 
 #treeContainer {
-    font-size: 12px;
+    font-size: $treeContainer_font_size;
     overflow: hidden; // Used to make the interface fixed to that nothing moves from its place and for zoom.
     flex-grow: 2; // When the content is small this allows the block to grow and take al available space.
 

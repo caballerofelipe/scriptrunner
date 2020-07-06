@@ -1,10 +1,17 @@
 @use "sass:math";
-$hierarchy_line_color: #000;
-$hierarchy_line_width: 2px;
+
+$app_font_family: Verdana, Arial, sans-serif;
+
+$treeInterface_font_family: $app_font_family;
+
+$treeContainer_font_size: 14px;
 
 $subTreesRow_padding: 10px;
+
+$hierarchy_line_color: #333;
+$hierarchy_line_width: 2px;
+
 $node_padding_to_line: 10px;
 $node_padding: $node_padding_to_line + $hierarchy_line_width;
-
-$node_width: 120px;
+$node_width: 100px;
 $node_height: $node_width;
