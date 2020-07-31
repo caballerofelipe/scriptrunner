@@ -37,10 +37,6 @@ export default {
         return {
             showStoreState: false /* FCG: WARNING/REMOVE To show a <pre> processTree. */
         }
-    },
-    beforeCreate: function() {
-        this.$store.commit('assignId');
-        this.$store.commit('assignOriginalID'); /* FCG: used for DEBUG. */
     }
 }
 </script>

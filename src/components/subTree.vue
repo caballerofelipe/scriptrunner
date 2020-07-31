@@ -1,16 +1,14 @@
 <template>
 <div class="subTree">
-    <div class="nodeAndSubTree"
-		draggable="true">
-        <div class="node" title="Incomplete drag and drop features... see the docs.">
-            {{node.nodeValue}}
+    <div class="nodeAndSubTree" draggable="true" @dragstart.stop='nodeAndSubTree_dragstart' @dragend.stop.prevent='nodeAndSubTree_dragend'>
+        <div class="node" @dragenter.prevent.stop='node_dragenter'>
+            {{node.nodeValue}}<!-- FCG to keep text inside, should be max 33 char -->
             <div style="font-size: 8px; color: lightgreen;">
                 <!-- DEBUG -->
                 (id: <b>{{node.id}}</b><br>initial:<br><b>{{node.originalID}}</b>)
             </div>
         </div>
-        <!-- subTreesRow should always be created as
-        it's used to insert the drop placeholder. -->
+        <!-- subTreesRow should always be created as it's used to insert the drop placeholder. -->
         <subTreesRow v-bind:subTreesRow='node.processTree' />
     </div>
 </div>
@@ -18,8 +16,7 @@
 
 <script>
 import subTreesRow from '@/components/subTreesRow.vue';
-
-let draggedElement = null;
+import eventsBus from '@/lib/eventsBus.js';
 
 export default {
     name: 'subTree',
@@ -31,43 +28,124 @@ export default {
     ],
     computed: {},
     methods: {
-        dragstart() {
-            /* FCG: IMPORTANT: use dragstart parameters to acces the right element. */
+        nodeAndSubTree_dragstart(event) {
+            eventsBus.setEventData('node', 'movement', {
+                id: this.node.id
+            });
+            event.target.style.opacity = 0.2; // Inadvertently: this solves the issue with the hierarchy lines
+        },
+        nodeAndSubTree_dragend(event) {
+            event.target.style.opacity = 1;
+            document.querySelectorAll('.dnd_placeholder').forEach((e) => e.remove());
+            eventsBus.getEventData(true);
+        },
+        node_dragenter() {
+            // Basic validations
+            if (this == null || !this.node || !this.node.id) {
+                return
+            }
+            let eventData = eventsBus.getEventData(false);
 
-            /* FCG: WARNING only works if window.FCG_DEBUG, set it manually in the console. */
-            let theElement = this.$el;
-            draggedElement = this;
-            if (window.FCG_DEBUG) {
-                window.console.log('dragstart()')
-                window.console.log(theElement);
-                window.theDraggableNodeContainer = theElement;
-            }
-            // theElement.transform = 'scale('+this.$store.state.processTreeZoom+')'; // Doesn't work
-        },
-        dragend() {
-            /* FCG: WARNING only works if window.FCG_DEBUG, set it manually in the console. */
-            let theElement = this.$el;
-            if (window.FCG_DEBUG) {
-                window.console.log('dragend()')
-                window.console.log(theElement)
-            }
-        },
-        dragenter(event) {
-            // dragenter(){
-            // Only use the event if the element is not itself or a child
-            if (String(this.node.id).startsWith(draggedElement.node.id)) {
+            // If not a node event
+            if (!eventData || eventData.element != 'node') {
                 return;
             }
-            /* FCG: WARNING only works if window.FCG_DEBUG, set it manually in the console. */
-            let theElement = this.$el;
-            if (window.FCG_DEBUG) {
-                window.console.log('dragenter()');
-                window.console.log(event);
-                window.console.log(this.node.id);
-                window.console.log('theElement', theElement);
-                window.console.log('this.node.id', this.node.id);
-                window.console.log('draggedElement.node.id', draggedElement.node.id);
+
+            // If entering dragged element remove placeholders
+            if (eventData.eventType == 'movement' && eventData.payload &&
+                this.node.id.startsWith(eventData.payload.id) // The dragged over element is itself or a child
+            ) {
+                let newEventData = eventsBus.getEventData(true);
+                let newMetadata = { ...newEventData.metadata,
+                    ...{
+                        currentHoveredSubTree: null
+                    }
+                };
+                eventsBus.setEventData(newEventData.element, newEventData.eventType, newEventData.payload, newMetadata);
+                document.querySelectorAll('.dnd_placeholder').forEach((e) => e.remove());
+                return;
             }
+            let hoveredSubTree = this.$el;
+
+            // Avoid redoing work and creating an infinite loop of adding/removing/adding/...
+            if (eventData && eventData.metadata && eventData.metadata.currentHoveredSubTree == hoveredSubTree) {
+                return;
+            }
+
+            // Reset currentHoveredSubTree
+            let newEventData = eventsBus.getEventData(true);
+            let newMetadata = { ...newEventData.metadata,
+                ...{
+                    currentHoveredSubTree: hoveredSubTree
+                }
+            };
+            eventsBus.setEventData(newEventData.element, newEventData.eventType, newEventData.payload, newMetadata);
+            document.querySelectorAll('.dnd_placeholder').forEach((e) => e.remove());
+
+            let newdivs = [];
+            let elementToAdd = document.createElement('div');
+
+            elementToAdd.className = 'subTree dnd_placeholder';
+            elementToAdd.innerHTML = '<div class="nodeAndSubTree"><div class="node">Drop</div></div>';
+
+            newdivs[0] = elementToAdd.cloneNode(true);
+            newdivs[0].action = 'before';
+            newdivs[1] = elementToAdd.cloneNode(true);
+            newdivs[1].action = 'after';
+            newdivs[2] = elementToAdd.cloneNode(true);
+            newdivs[2].action = 'below';
+            let dropOnElements = [];
+            let dropOnElements_before = hoveredSubTree.parentNode.insertBefore(newdivs[0], hoveredSubTree);
+            dropOnElements.push(dropOnElements_before);
+            let dropOnElements_after = hoveredSubTree.parentNode.insertBefore(newdivs[1], hoveredSubTree.nextSibling);
+            dropOnElements.push(dropOnElements_after);
+            // If the hovered element doesn't have any child
+            if (this.node.processTree.length == 0) {
+                let dropOnElements_below = hoveredSubTree.querySelector('.subTreesRow').appendChild(newdivs[2])
+                dropOnElements.push(dropOnElements_below);
+            }
+            let that = this;
+            dropOnElements.forEach(element => {
+                let placeHolderNode = element.querySelector('.node');
+                placeHolderNode.addEventListener('dragover', function(event) {
+                    event.target.style.background = 'lightgreen';
+                    event.preventDefault();
+                    event.stopPropagation();
+                }, false);
+                placeHolderNode.addEventListener('dragleave', function(event) {
+                    event.target.style.background = 'lightgray';
+                    event.preventDefault();
+                    event.stopPropagation();
+                }, false);
+                placeHolderNode.addEventListener('drop', function(event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    document.querySelectorAll('.dnd_placeholder').forEach((e) => e.remove());
+                    let eventData = eventsBus.getEventData(true);
+                    if (eventData.element == 'node') {
+                        switch (eventData.eventType) {
+                            case 'movement':
+                                that.$store.commit({
+                                    type: 'moveNodeNextToNode',
+                                    movedNodePathStr: eventData.payload.id,
+                                    nextToNodePathStr: that.node.id,
+                                    position: element.action
+                                });
+                                break;
+                            case 'creation':
+                                that.$store.commit({
+                                    type: 'createNodeNextToNode',
+                                    nextToNodePathStr: that.node.id,
+                                    newNode: eventData.payload.newNode,
+                                    position: element.action
+                                });
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }, false);
+            })
         }
     },
     mounted() {}
@@ -112,17 +190,26 @@ export default {
     padding: $node_padding;
 }
 .node {
-    background-color: rgba(200,130,210);
+    background-color: #8284d2;
     color: white;
     border-radius: 100%;
     width: $node_width;
     height: $node_height;
     padding: 5px;
+    white-space: normal;
+    word-wrap: break-word;
     cursor: move;
 
     // To center bubble and content.
     display: inline-flex;
     flex-direction: column;
     justify-content: center;
+}
+
+.dnd_placeholder {
+    .node {
+        color: #333;
+        background-color: lightgray;
+    }
 }
 </style>
