@@ -7,380 +7,6 @@ import treeTools from '@/lib/treeTools.js'
 const treeString = '[{"value":"a_value","tree":[{"value":"a_value","tree":[{"value":"a_value","tree":[],"id":"_0_0_0"}],"id":"_0_0"},{"value":"a_value","tree":[{"value":"a_value","tree":[{"value":"a_value","tree":[],"id":"_0_1_0_0"},{"value":"a_value","tree":[],"id":"_0_1_0_1"}],"id":"_0_1_0"}],"id":"_0_1"}],"id":"_0"},{},{"tree":{},"id":"_2"},{"tree":[],"id":"_3"},{"tree":[{}],"id":"_4"}]';
 
 /**
- * Testing treeTools.findPath
- *
- * Signature:
- * function findPath(obj, value)
- */
-test('treeTools.findPath', () => {
-    // Mandatory params, throws
-    expect(() => treeTools.findPath()).toThrow(/^obj is mandatory.$/);
-    expect(() => treeTools.findPath('hello')).toThrow(/^value is mandatory.$/);
-    // Throw 'value cannod be an object.'
-    expect(() => treeTools.findPath('hello', {})).toThrow(/^value cannod be an object.$/);
-    expect(() => treeTools.findPath('hello', [])).toThrow(/^value cannod be an object.$/);
-    // Valid input multiple tests
-    expect(treeTools.findPath('hello', 'hello')).toBe(true);
-    expect(treeTools.findPath('hello', 'bye')).toBe(false);
-    expect(treeTools.findPath(JSON.parse(treeString), '_0_1_0_0'))
-        .toStrictEqual(["0", "tree", "1", "tree", "0", "tree", "0", "id"]);
-    expect(treeTools.findPath(JSON.parse(treeString), '_0_1'))
-        .toStrictEqual(["0", "tree", "1", "id"]);
-    expect(treeTools.findPath(JSON.parse(treeString), '_3'))
-        .toStrictEqual(["3", "id"]);
-    expect(treeTools.findPath(JSON.parse(treeString), '_99'))
-        .toBe(false);
-    expect(treeTools.findPath({
-        true: 1,
-        false: 2
-    }, '1')).toStrictEqual(["true"]);
-});
-
-/**
- * Testing treeTools.nodeExists
- *
- * Signature:
- * function nodeExists(obj, path)
- */
-test(`treeTools.nodeExists`, () => {
-    // throw 'obj must be an object.'
-    expect(() => treeTools.nodeExists()).toThrow(/^obj must be an object.$/);
-    expect(() => treeTools.nodeExists(false)).toThrow(/^obj must be an object.$/);
-    expect(() => treeTools.nodeExists('string')).toThrow(/^obj must be an object.$/);
-    expect(() => treeTools.nodeExists(1)).toThrow(/^obj must be an object.$/);
-
-    // throw 'path must be an array.'
-    expect(() => treeTools.nodeExists({})).toThrow(/^path must be an array.$/);
-    expect(() => treeTools.nodeExists({}, 'string')).toThrow(/^path must be an array.$/);
-    expect(() => treeTools.nodeExists({}, 1)).toThrow(/^path must be an array.$/);
-    expect(() => treeTools.nodeExists({}, {})).toThrow(/^path must be an array.$/);
-
-    // If path is empty array return true as path should point to obj
-    expect(treeTools.nodeExists(JSON.parse(treeString), [])).toBe(true);
-    expect(treeTools.nodeExists({}, [])).toBe(true);
-
-    // If obj is empty object and path is non-empty array return false
-    expect(treeTools.nodeExists({}, [1, 2, 3])).toBe(false);
-
-    // Valid input, found node
-    expect(treeTools.nodeExists(JSON.parse(treeString), [0, 'tree', 1, 'tree', 0, 'tree', 1])).toBe(true);
-
-    // Valid input, not found node
-    expect(treeTools.nodeExists(JSON.parse(treeString), [0, 'tree', 1, 'tree', 0, 'tree', 99])).toBe(false);
-});
-
-/**
- * Testing treeTools.getNode
- *
- * Signature:
- * function getNode(obj, path, createPathIfNotFound = false)
- */
-test('treeTools.getNode', () => {
-    // throw 'obj must be an object.'
-    expect(() => treeTools.getNode()).toThrow(/^obj must be an object.$/);
-    expect(() => treeTools.getNode(false)).toThrow(/^obj must be an object.$/);
-    expect(() => treeTools.getNode('string')).toThrow(/^obj must be an object.$/);
-    expect(() => treeTools.getNode(1)).toThrow(/^obj must be an object.$/);
-
-    // throw 'path must be an array.'
-    expect(() => treeTools.getNode({})).toThrow(/^path must be an array.$/);
-    expect(() => treeTools.getNode({}, 'string')).toThrow(/^path must be an array.$/);
-    expect(() => treeTools.getNode({}, 1)).toThrow(/^path must be an array.$/);
-    expect(() => treeTools.getNode({}, {})).toThrow(/^path must be an array.$/);
-
-    // Throw Not found error and check error
-    function getNotFoundThrow(obj, path, successfulPath, notFoundPath) {
-        let notFoundErrorTpl = `obj's path not reachable\n\tsuccessful path: %SUCCESSFUL_PATH%\n\tnot found path: %NOTFOUND_PATH%`;
-        let notFoundErrorMsg = '';
-        notFoundErrorMsg = notFoundErrorTpl;
-        notFoundErrorMsg = notFoundErrorMsg.replace(/%SUCCESSFUL_PATH%/, JSON.stringify(successfulPath))
-        notFoundErrorMsg = notFoundErrorMsg.replace(/%NOTFOUND_PATH%/, JSON.stringify(notFoundPath))
-        expect(() => treeTools.getNode(obj, path))
-            .toThrow(new Error(notFoundErrorMsg));
-    }
-    getNotFoundThrow(
-        JSON.parse(treeString), // tree
-        [0, 'tree', 1, 99], // path
-        ['0', 'tree', '1'], // successfulPath (found object in path)
-        ['0', 'tree', '1', '99'] // notFoundPath
-    );
-    getNotFoundThrow(
-        JSON.parse(treeString), // tree
-        [0, 1, 2], // path
-        ['0'], // successfulPath (found object in path)
-        ['0', '1'] // notFoundPath
-    );
-    getNotFoundThrow(
-        JSON.parse(treeString), // tree
-        ['a', 'b', 'c'], // path
-        [], // successfulPath (found object in path)
-        ['a'] // notFoundPath
-    );
-
-    // Throw 'part of path is not an object, not an object in path: []'
-    expect(() => treeTools.getNode(JSON.parse(treeString), [0, 'value', 1]))
-        .toThrow(new Error(`part of path is not an object, not an object in path: ${JSON.stringify(['0', 'value'])}`));
-
-    // Throw 'Trying to add a non integer key inside an array.'
-    let objWhenPathNotFoundNonIntegerKeyInsideArray = JSON.parse(treeString);
-    expect(() => treeTools.getNode(objWhenPathNotFoundNonIntegerKeyInsideArray, ['a', 'b', 'c'], true))
-        .toThrow(new Error(`Trying to add a non integer key inside an array.\n\tarray in path: []\n\ttrying to add key: a`));
-
-    // Throw 'Trying to add an index greater than array length in array in path: (...)'
-    expect(() => treeTools.getNode(JSON.parse(treeString), [99, 'b', 'c'], true))
-        .toThrow(new Error(`Trying to add an index greater than array length in array in path: []`));
-
-    // Valid input, found node
-    expect(treeTools.getNode(JSON.parse(treeString), [2, 'id'])).toBe('_2');
-    expect(treeTools.getNode(JSON.parse(treeString), ['2', 'id'])).toBe('_2'); // Same as above but numbers as string.
-    expect(treeTools.getNode(JSON.parse(treeString), [0, 'tree', 1]))
-        .toStrictEqual(JSON.parse('{"value":"a_value","tree":[{"value":"a_value","tree":[{"value":"a_value","tree":[],"id":"_0_1_0_0"},{"value":"a_value","tree":[],"id":"_0_1_0_1"}],"id":"_0_1_0"}],"id":"_0_1"}'));
-    expect(treeTools.getNode(JSON.parse(treeString), ['0', 'tree', '1'])) // Same as above but numbers as string.
-        .toStrictEqual(JSON.parse('{"value":"a_value","tree":[{"value":"a_value","tree":[{"value":"a_value","tree":[],"id":"_0_1_0_0"},{"value":"a_value","tree":[],"id":"_0_1_0_1"}],"id":"_0_1_0"}],"id":"_0_1"}'));
-    expect(treeTools.getNode(JSON.parse(treeString), [])).toStrictEqual(JSON.parse(treeString));
-
-    // Create path when path doesn't exist using createPathIfNotFound=true
-    { // Forced scope {}
-        let tree = JSON.parse(treeString);
-        expect(treeTools.getNode(tree, [4, 'b', 'c'], true)).toStrictEqual({});
-        // Since last pos before adding was 3, the inserted  object first path will be 4
-        expect(tree[4]['b']['c']).toStrictEqual({});
-    }
-});
-
-/**
- * Testing treeTools.isSubArray
- *
- * Signature:
- * function isSubArray(subArray, superArray)
- */
-test('treeTools.isSubArray', () => {
-    // throw 'subArray must be an array.'
-    expect(() => treeTools.isSubArray()).toThrow(/^subArray must be an array.$/);
-    // throw 'superArray must be an array.'
-    expect(() => treeTools.isSubArray([])).toThrow(/^superArray must be an array.$/);
-    expect(treeTools.isSubArray([], [])).toBe(true);
-
-    function isSubArraySubTest(a1, a2, a3) {
-        expect(treeTools.isSubArray(a1, a1)).toBe(true);
-        expect(treeTools.isSubArray([], a1)).toBe(true);
-        expect(treeTools.isSubArray(a1, [])).toBe(false);
-        expect(treeTools.isSubArray(a1, a2)).toBe(false);
-        expect(treeTools.isSubArray(a1, a3)).toBe(true);
-        expect(treeTools.isSubArray(a2, a3)).toBe(false);
-    }
-
-    isSubArraySubTest(
-        ['0', 'tree', '1', 'tree'],
-        ['0', 'tree', '2', 'tree'],
-        ['0', 'tree', '1', 'tree', '0', 'tree'],
-    );
-    isSubArraySubTest(
-        [1, 2, 3],
-        [1, 4, 3],
-        [1, 2, 3, 4, 5, 6],
-    );
-    isSubArraySubTest(
-        [true, false, true],
-        [true, true, true],
-        [true, false, true, false, true],
-    );
-    isSubArraySubTest(
-        [1, true, 'true'],
-        [1, false, 'true'],
-        [1, true, 'true', 0, false, 'false'],
-    );
-    isSubArraySubTest(
-        [1, true, 'true'],
-        [1, false, 'true'],
-        ['1', true, 'true', 0, false, 'false'], // Using 1 as a string
-    );
-});
-
-/**
- * Testing treeTools.moveNode
- *
- * Signature:
- * function moveNode(obj, initialPath, finalPath, copyObj = false)
- */
-test('treeTools.moveNode', () => {
-    // throw 'obj must be an object.'
-    expect(() => treeTools.moveNode()).toThrow(/^obj must be an object.$/);
-    expect(() => treeTools.moveNode(false)).toThrow(/^obj must be an object.$/);
-    expect(() => treeTools.moveNode('string')).toThrow(/^obj must be an object.$/);
-    expect(() => treeTools.moveNode(1)).toThrow(/^obj must be an object.$/);
-
-    // throw 'initialPath must be an array.'
-    expect(() => treeTools.moveNode({})).toThrow(/^initialPath must be an array.$/);
-    expect(() => treeTools.moveNode({}, 'string')).toThrow(/^initialPath must be an array.$/);
-    expect(() => treeTools.moveNode({}, 1)).toThrow(/^initialPath must be an array.$/);
-    expect(() => treeTools.moveNode({}, {})).toThrow(/^initialPath must be an array.$/);
-
-    // throw 'initialPath must be non-empty array.'
-    expect(() => treeTools.moveNode({}, [])).toThrow(/^initialPath must be non-empty array.$/);
-
-    // throw `initialPath doesn't point to an existing node.`
-    expect(() => treeTools.moveNode(JSON.parse(treeString), [100], [])).toThrow(/^initialPath doesn't point to an existing node.$/);
-
-    // throw 'finalPath must be an array.'
-    expect(() => treeTools.moveNode(JSON.parse(treeString), [0])).toThrow(/^finalPath must be an array.$/);
-    expect(() => treeTools.moveNode(JSON.parse(treeString), [0], 'string')).toThrow(/^finalPath must be an array.$/);
-    expect(() => treeTools.moveNode(JSON.parse(treeString), [0], 1)).toThrow(/^finalPath must be an array.$/);
-    expect(() => treeTools.moveNode(JSON.parse(treeString), [0], {})).toThrow(/^finalPath must be an array.$/);
-
-    // throw 'finalPath must be non-empty array.'
-    expect(() => treeTools.moveNode(JSON.parse(treeString), [0], [])).toThrow(/^finalPath must be non-empty array.$/);
-
-    // throw 'The object to be moved cannot be moved inside a child object.'
-    expect(() => treeTools.moveNode(JSON.parse(treeString), [0], [0, 'tree', 0])).toThrow(/^The object to be moved cannot be moved inside a child object.$/)
-
-    // throw 'Trying to add a non integer key inside an array. (...)'
-    expect(() => treeTools.moveNode(JSON.parse(treeString), [0], [99.99]))
-        .toThrow(
-            new Error(`Trying to add a non integer key inside an array.\n\tarray in path: []\n\ttrying to add key: 99.99`)
-        );
-    expect(() => treeTools.moveNode(JSON.parse(treeString), [0], ['new_node']))
-        .toThrow(
-            new Error(`Trying to add a non integer key inside an array.\n\tarray in path: []\n\ttrying to add key: new_node`)
-        );
-
-    // throw 'Trying to add an index (...)'
-    expect(() => treeTools.moveNode(JSON.parse(treeString), [0], [6]))
-        .toThrow(
-            new Error(`Trying to add an index (6) greater than array length (5) in array in path: []`)
-        );
-
-    // throw 'The object to be moved would overwrite an existing key.'
-    { // Forced scope {}
-        let originalTree = {
-            0: {
-                id: '_0'
-            },
-            new_node: 'this is a new node'
-        };
-        expect(() => treeTools.moveNode(originalTree, ['0', 'id'], ['new_node']))
-            .toThrow(/^The object to be moved would overwrite an existing key.$/);
-    } { // Forced scope {}
-        let originalTree = {
-            0: {
-                id: '_0'
-            },
-            new_node: 'this is a new node'
-        };
-        expect(() => treeTools.moveNode(originalTree, ['0', 'id'], ['new_node'], true)) // Explicitly tell to throw
-            .toThrow(/^The object to be moved would overwrite an existing key.$/);
-    }
-
-    function test_moveNode_correctMovement(initialPath, finalPath, originalTreeString, changedCorrectTreeString) {
-        // Test if the returned tree is correct and that there was no copy
-        let treeForNoCopy = JSON.parse(originalTreeString);
-        let treeReturnedNoCopy = treeTools.moveNode(treeForNoCopy, initialPath, finalPath);
-        expect(treeForNoCopy == treeReturnedNoCopy).toBe(true);
-        expect(treeReturnedNoCopy).toStrictEqual(JSON.parse(changedCorrectTreeString));
-
-        // Test if the returned tree is correct and that there was copy
-        let treeForCopy = JSON.parse(originalTreeString);
-        let treeReturnedCopy = treeTools.moveNode(treeForCopy, initialPath, finalPath, true, true);
-        expect(treeForCopy == treeReturnedCopy).toBe(false);
-        expect(treeReturnedCopy).toStrictEqual(JSON.parse(changedCorrectTreeString));
-    }
-
-    // initialPath and finalPath are the same, return initial obj (without changes)
-    { // Forced scope {}
-        test_moveNode_correctMovement(
-            [0, 'tree', 1, 'tree', 0, 'id'], // initialPath
-            [0, 'tree', 1, 'tree', 0, 'id'], // finalPath
-            treeString, // originalTree
-            treeString, // changedCorrectTree
-        );
-    }
-    // initialPath container is object, finalPath doesn't exist, finalPath has only 1 key as text
-    { // Forced scope {}
-        let originalTree = {
-            0: {
-                id: '_0'
-            }
-        };
-        let treeNewCorrect = {
-            0: {},
-            new_node: '_0'
-        };
-        test_moveNode_correctMovement(
-            [0, 'id'], // initialPath
-            ['new_node'], // finalPath
-            JSON.stringify(originalTree), // originalTree
-            JSON.stringify(treeNewCorrect), // changedCorrectTree
-        );
-    }
-    // initialPath container is object, finalPath doesn't exist, finalPath has only 3 key as text
-    { // Forced scope {}
-        let originalTree = {
-            0: {
-                id: '_0'
-            }
-        };
-        let treeNewCorrect = {
-            0: {},
-            new_node: {
-                new_node: {
-                    new_node: '_0'
-                }
-            }
-        };
-        test_moveNode_correctMovement(
-            [0, 'id'], // initialPath
-            ['new_node', 'new_node', 'new_node'], // finalPath
-            JSON.stringify(originalTree), // originalTree
-            JSON.stringify(treeNewCorrect), // changedCorrectTree
-        );
-    }
-    // initialPath container is object, finalPath doesn't exist, finalPath has only 1 key as decimal
-    { // Forced scope {}
-        let originalTree = {
-            0: {
-                id: '_0'
-            }
-        };
-        let treeNewCorrect = {
-            0: {},
-            99.99: '_0'
-        };
-        test_moveNode_correctMovement(
-            [0, 'id'], // initialPath
-            [99.99], // finalPath
-            JSON.stringify(originalTree), // originalTree
-            JSON.stringify(treeNewCorrect), // changedCorrectTree
-        );
-    }
-    // initialPath container is array, finalPath exist, finalPath has only 1 key as integer
-    { // Forced scope {}
-        let treeNewCorrect = JSON.parse(treeString);
-        treeNewCorrect[5] = treeNewCorrect[4];
-        treeNewCorrect[4] = treeNewCorrect[3];
-        treeNewCorrect[3] = treeNewCorrect[0];
-        treeNewCorrect.splice(0, 1);
-        test_moveNode_correctMovement(
-            [0], // initialPath
-            [3], // finalPath
-            treeString, // originalTree
-            JSON.stringify(treeNewCorrect), // changedCorrectTree
-        );
-    }
-    // initialPath container is array, finalPath doesn't exist, finalPath has only 1 key as integer
-    { // Forced scope {}
-        let treeNewCorrect = JSON.parse(treeString);
-        treeNewCorrect[5] = treeNewCorrect[0];
-        treeNewCorrect.splice(0, 1);
-        test_moveNode_correctMovement(
-            [0], // initialPath
-            [5], // finalPath
-            treeString, // originalTree
-            JSON.stringify(treeNewCorrect), // changedCorrectTree
-        );
-    }
-});
-
-/**
  * Testing treeTools.getPathByID
  *
  * Signature:
@@ -562,7 +188,7 @@ test('treeTools.newPathByPosition', () => {
 test('treeTools.moveNodeNextToNode', () => {
     /*
       Notes on possible future tests:
-      - Maybe this function should validate the input as other functions do. If so -> test.
+      - Maybe this function should validate the input as other functions do (AKA replicate validation). If so implement the needed tests.
      */
     // throw 'tree must be an object.'
     expect(() => treeTools.moveNodeNextToNode(1)).toThrow(/^tree must be an object.$/);
@@ -570,20 +196,32 @@ test('treeTools.moveNodeNextToNode', () => {
     expect(() => treeTools.moveNodeNextToNode('string')).toThrow(/^tree must be an object.$/);
 
     // throw `movedNodePathStr must be a string containing the path of the given node, this path must be separated by a pathDelimiter.`
-    expect(() => treeTools.moveNodeNextToNode([])).toThrow(/^movedNodePathStr must be a string containing the path of the given node, this path must be separated by idDelimiter.$/);
-    expect(() => treeTools.moveNodeNextToNode([], 1)).toThrow(/^movedNodePathStr must be a string containing the path of the given node, this path must be separated by idDelimiter.$/);
-    expect(() => treeTools.moveNodeNextToNode([], false)).toThrow(/^movedNodePathStr must be a string containing the path of the given node, this path must be separated by idDelimiter.$/);
-    expect(() => treeTools.moveNodeNextToNode([], {})).toThrow(/^movedNodePathStr must be a string containing the path of the given node, this path must be separated by idDelimiter.$/);
-    expect(() => treeTools.moveNodeNextToNode([], [])).toThrow(/^movedNodePathStr must be a string containing the path of the given node, this path must be separated by idDelimiter.$/);
-    expect(() => treeTools.moveNodeNextToNode([], '')).toThrow(/^movedNodePathStr must be a string containing the path of the given node, this path must be separated by idDelimiter.$/);
+    expect(() => treeTools.moveNodeNextToNode([]))
+        .toThrow(/^movedNodePathStr must be a string containing the path of the given node, this path must be separated by idDelimiter.$/);
+    expect(() => treeTools.moveNodeNextToNode([], 1))
+        .toThrow(/^movedNodePathStr must be a string containing the path of the given node, this path must be separated by idDelimiter.$/);
+    expect(() => treeTools.moveNodeNextToNode([], false))
+        .toThrow(/^movedNodePathStr must be a string containing the path of the given node, this path must be separated by idDelimiter.$/);
+    expect(() => treeTools.moveNodeNextToNode([], {}))
+        .toThrow(/^movedNodePathStr must be a string containing the path of the given node, this path must be separated by idDelimiter.$/);
+    expect(() => treeTools.moveNodeNextToNode([], []))
+        .toThrow(/^movedNodePathStr must be a string containing the path of the given node, this path must be separated by idDelimiter.$/);
+    expect(() => treeTools.moveNodeNextToNode([], ''))
+        .toThrow(/^movedNodePathStr must be a string containing the path of the given node, this path must be separated by idDelimiter.$/);
 
     // throw `nextToNodePathStr must be a string containing the path of the given node, this path must be separated by a pathDelimiter.`
-    expect(() => treeTools.moveNodeNextToNode([], '_0_0')).toThrow(/^nextToNodePathStr must be a string containing the path of the given node, this path must be separated by idDelimiter.$/);
-    expect(() => treeTools.moveNodeNextToNode([], '_0_0', 1)).toThrow(/^nextToNodePathStr must be a string containing the path of the given node, this path must be separated by idDelimiter.$/);
-    expect(() => treeTools.moveNodeNextToNode([], '_0_0', false)).toThrow(/^nextToNodePathStr must be a string containing the path of the given node, this path must be separated by idDelimiter.$/);
-    expect(() => treeTools.moveNodeNextToNode([], '_0_0', {})).toThrow(/^nextToNodePathStr must be a string containing the path of the given node, this path must be separated by idDelimiter.$/);
-    expect(() => treeTools.moveNodeNextToNode([], '_0_0', [])).toThrow(/^nextToNodePathStr must be a string containing the path of the given node, this path must be separated by idDelimiter.$/);
-    expect(() => treeTools.moveNodeNextToNode([], '_0_0', '')).toThrow(/^nextToNodePathStr must be a string containing the path of the given node, this path must be separated by idDelimiter.$/);
+    expect(() => treeTools.moveNodeNextToNode([], '_0_0'))
+        .toThrow(/^nextToNodePathStr must be a string containing the path of the given node, this path must be separated by idDelimiter.$/);
+    expect(() => treeTools.moveNodeNextToNode([], '_0_0', 1))
+        .toThrow(/^nextToNodePathStr must be a string containing the path of the given node, this path must be separated by idDelimiter.$/);
+    expect(() => treeTools.moveNodeNextToNode([], '_0_0', false))
+        .toThrow(/^nextToNodePathStr must be a string containing the path of the given node, this path must be separated by idDelimiter.$/);
+    expect(() => treeTools.moveNodeNextToNode([], '_0_0', {}))
+        .toThrow(/^nextToNodePathStr must be a string containing the path of the given node, this path must be separated by idDelimiter.$/);
+    expect(() => treeTools.moveNodeNextToNode([], '_0_0', []))
+        .toThrow(/^nextToNodePathStr must be a string containing the path of the given node, this path must be separated by idDelimiter.$/);
+    expect(() => treeTools.moveNodeNextToNode([], '_0_0', ''))
+        .toThrow(/^nextToNodePathStr must be a string containing the path of the given node, this path must be separated by idDelimiter.$/);
 
     //   throw `position must be a string, possible values: 'before'|'after'|'below'.`
     let positionThrow = `position must be a string, possible values: 'before'|'after'|'below'.`;
@@ -609,6 +247,18 @@ test('treeTools.moveNodeNextToNode', () => {
     expect(() => treeTools.moveNodeNextToNode([], '_0_0', '_0_0', 'before', ''))
         .toThrow(/^subTreeKey must be a non-empty string.$/);
 
+    // throw 'idDelimiter must be a non-empty string.'
+    expect(() => treeTools.moveNodeNextToNode([], '_0_0', '_0_0', 'before', 'tree', 1))
+        .toThrow(/^idDelimiter must be a non-empty string.$/);
+    expect(() => treeTools.moveNodeNextToNode([], '_0_0', '_0_0', 'before', 'tree', null))
+        .toThrow(/^idDelimiter must be a non-empty string.$/);
+    expect(() => treeTools.moveNodeNextToNode([], '_0_0', '_0_0', 'before', 'tree', true))
+        .toThrow(/^idDelimiter must be a non-empty string.$/);
+
+    // throw 'idDelimiter cannot contain numbers.'
+    expect(() => treeTools.moveNodeNextToNode([], '_0_0', '_0_0', 'before', 'tree', ',2'))
+        .toThrow(/^idDelimiter cannot contain numbers.$/);
+
     // throw `moved node doesn't exist with (movedNodePathStr[${movedNodePathStr}]).`
     expect(() => treeTools.moveNodeNextToNode(JSON.parse(treeString), '_99_0', '_0_0', 'before', 'tree'))
         .toThrow(new Error(`movedNode node doesn't exist (movedNodePathStr[_99_0]).`));
@@ -627,22 +277,19 @@ test('treeTools.moveNodeNextToNode', () => {
     expect(() => treeTools.moveNodeNextToNode(JSON.parse(treeString), '_0_1_0', '_0_1_0_0', 'before', 'tree'))
         .toThrow(/^The object to be moved cannot be moved inside a child object.$/);
 
-    // moveNodeNextToNode(tree, movedNodePathStr, nextToNodePathStr, position, subTreeKey, idDelimiter = '_', copyTree = false)
     function test_moveNodeNextToNode_correctMovement(
         movedNodePathStr, nextToNodePathStr, position, subTreeKey, idDelimiter,
         originalTreeString, changedCorrectTreeString
     ) {
         // Test if the returned tree is correct and that there was no copy
         let treeForNoCopy = JSON.parse(originalTreeString);
-        let treeReturnedNoCopy = treeTools.moveNodeNextToNode(
-            treeForNoCopy, movedNodePathStr, nextToNodePathStr, position, subTreeKey, idDelimiter);
+        let treeReturnedNoCopy = treeTools.moveNodeNextToNode(treeForNoCopy, movedNodePathStr, nextToNodePathStr, position, subTreeKey, idDelimiter);
         expect(treeForNoCopy == treeReturnedNoCopy).toBe(true);
         expect(treeReturnedNoCopy).toStrictEqual(JSON.parse(changedCorrectTreeString));
 
         // Test if the returned tree is correct and that there was copy
         let treeForCopy = JSON.parse(originalTreeString);
-        let treeReturnedCopy = treeTools.moveNodeNextToNode(
-            treeForCopy, movedNodePathStr, nextToNodePathStr, position, subTreeKey, idDelimiter, true);
+        let treeReturnedCopy = treeTools.moveNodeNextToNode(treeForCopy, movedNodePathStr, nextToNodePathStr, position, subTreeKey, idDelimiter, true);
         expect(treeForCopy == treeReturnedCopy).toBe(false);
         expect(treeReturnedCopy).toStrictEqual(JSON.parse(changedCorrectTreeString));
     }
@@ -1041,4 +688,266 @@ test('treeTools.moveNodeNextToNode', () => {
             JSON.stringify(treeNewCorrect), // changedCorrectTreeString
         );
     }
+});
+
+/**
+ * Testing treeTools.createNodeNextToNode
+ *
+ * Signature:
+ * function createNodeNextToNode(tree, nextToNodePathStr, insertedNode, position, subTreeKey, idDelimiter = '_', copyTree = false)
+ */
+test('treeTools.createNodeNextToNode', () => {
+    // throw 'tree must be an object.'
+    expect(() => treeTools.createNodeNextToNode(1)).toThrow(/^tree must be an object.$/);
+    expect(() => treeTools.createNodeNextToNode(false)).toThrow(/^tree must be an object.$/);
+    expect(() => treeTools.createNodeNextToNode('string')).toThrow(/^tree must be an object.$/);
+
+    // throw `nextToNodePathStr must be a string containing the path of the given node, this path must be separated by a pathDelimiter.`
+    expect(() => treeTools.createNodeNextToNode([]))
+        .toThrow(/^nextToNodePathStr must be a string containing the path of the given node, this path must be separated by idDelimiter.$/);
+    expect(() => treeTools.createNodeNextToNode([], 1))
+        .toThrow(/^nextToNodePathStr must be a string containing the path of the given node, this path must be separated by idDelimiter.$/);
+    expect(() => treeTools.createNodeNextToNode([], false))
+        .toThrow(/^nextToNodePathStr must be a string containing the path of the given node, this path must be separated by idDelimiter.$/);
+    expect(() => treeTools.createNodeNextToNode([], {}))
+        .toThrow(/^nextToNodePathStr must be a string containing the path of the given node, this path must be separated by idDelimiter.$/);
+    expect(() => treeTools.createNodeNextToNode([], []))
+        .toThrow(/^nextToNodePathStr must be a string containing the path of the given node, this path must be separated by idDelimiter.$/);
+    expect(() => treeTools.createNodeNextToNode([], ''))
+        .toThrow(/^nextToNodePathStr must be a string containing the path of the given node, this path must be separated by idDelimiter.$/);
+
+    // throw 'insertedNode is mandatory.'
+    expect(() => treeTools.createNodeNextToNode([], '_0_0')).toThrow(/^insertedNode is mandatory.$/);
+
+    //   throw `position must be a string, possible values: 'before'|'after'|'below'.`
+    let positionThrow = `position must be a string, possible values: 'before'|'after'|'below'.`;
+    expect(() => treeTools.createNodeNextToNode([], '_0_0', {})).toThrow(new Error(positionThrow));
+    expect(() => treeTools.createNodeNextToNode([], '_0_0', {}, 1)).toThrow(new Error(positionThrow));
+    expect(() => treeTools.createNodeNextToNode([], '_0_0', {}, false)).toThrow(new Error(positionThrow));
+    expect(() => treeTools.createNodeNextToNode([], '_0_0', {}, {})).toThrow(new Error(positionThrow));
+    expect(() => treeTools.createNodeNextToNode([], '_0_0', {}, [])).toThrow(new Error(positionThrow));
+    expect(() => treeTools.createNodeNextToNode([], '_0_0', {}, '')).toThrow(new Error(positionThrow));
+    expect(() => treeTools.createNodeNextToNode([], '_0_0', {}, 'string')).toThrow(new Error(positionThrow));
+
+    // throw 'subTreeKey must be a non-empty string.'
+    expect(() => treeTools.createNodeNextToNode([], '_0_0', {}, 'before'))
+        .toThrow(/^subTreeKey must be a non-empty string.$/);
+    expect(() => treeTools.createNodeNextToNode([], '_0_0', {}, 'before', 1))
+        .toThrow(/^subTreeKey must be a non-empty string.$/);
+    expect(() => treeTools.createNodeNextToNode([], '_0_0', {}, 'before', false))
+        .toThrow(/^subTreeKey must be a non-empty string.$/);
+    expect(() => treeTools.createNodeNextToNode([], '_0_0', {}, 'before', {}))
+        .toThrow(/^subTreeKey must be a non-empty string.$/);
+    expect(() => treeTools.createNodeNextToNode([], '_0_0', {}, 'before', []))
+        .toThrow(/^subTreeKey must be a non-empty string.$/);
+    expect(() => treeTools.createNodeNextToNode([], '_0_0', {}, 'before', ''))
+        .toThrow(/^subTreeKey must be a non-empty string.$/);
+
+    // throw 'idDelimiter must be a non-empty string.'
+    expect(() => treeTools.createNodeNextToNode([], '_0_0', {}, 'before', 'tree', 1))
+        .toThrow(/^idDelimiter must be a non-empty string.$/);
+    expect(() => treeTools.createNodeNextToNode([], '_0_0', {}, 'before', 'tree', null))
+        .toThrow(/^idDelimiter must be a non-empty string.$/);
+    expect(() => treeTools.createNodeNextToNode([], '_0_0', {}, 'before', 'tree', true))
+        .toThrow(/^idDelimiter must be a non-empty string.$/);
+
+    // throw 'idDelimiter cannot contain numbers.'
+    expect(() => treeTools.createNodeNextToNode([], '_0_0', {}, 'before', 'tree', ',2'))
+        .toThrow(/^idDelimiter cannot contain numbers.$/);
+
+    // throw `nextToNode doesn't exist (nextToNodePathStr[${nextToNodePathStr}]).`;
+    expect(() => treeTools.createNodeNextToNode(JSON.parse(treeString), '_99', {}, 'before', 'tree'))
+        .toThrow(new Error(`nextToNode node doesn't exist (nextToNodePathStr[_99]).`));
+    expect(() => treeTools.createNodeNextToNode(JSON.parse(treeString), '_99_0', {}, 'before', 'tree'))
+        .toThrow(new Error(`nextToNode node doesn't exist (nextToNodePathStr[_99_0]).`));
+
+    function test_createNodeNextToNode_correctMovement(
+        nextToNodePathStr, insertedNode, position, subTreeKey, idDelimiter,
+        originalTreeString, changedCorrectTreeString
+    ) {
+        // Test if the returned tree is correct and that there was no copy
+        let treeForNoCopy = JSON.parse(originalTreeString);
+        let treeReturnedNoCopy = treeTools.createNodeNextToNode(treeForNoCopy, nextToNodePathStr, insertedNode, position, subTreeKey, idDelimiter);
+        expect(treeForNoCopy == treeReturnedNoCopy).toBe(true);
+        expect(treeReturnedNoCopy).toStrictEqual(JSON.parse(changedCorrectTreeString));
+
+        // Test if the returned tree is correct and that there was copy
+        let treeForCopy = JSON.parse(originalTreeString);
+        let treeReturnedCopy = treeTools.createNodeNextToNode(treeForCopy, nextToNodePathStr, insertedNode, position, subTreeKey, idDelimiter, true);
+        expect(treeForCopy == treeReturnedCopy).toBe(false);
+        expect(treeReturnedCopy).toStrictEqual(JSON.parse(changedCorrectTreeString));
+    }
+    /* FCG: DELETEME next line. */
+    // function createNodeNextToNode(tree, nextToNodePathStr, insertedNode, position, subTreeKey, idDelimiter = '_', copyTree = false)
+
+    // insert a node where another node exists (_0), position=before
+    { // Forced scope {}
+        let treeNewCorrect = JSON.parse(treeString);
+        treeNewCorrect.splice(0, 0, {});
+        test_createNodeNextToNode_correctMovement(
+            '_0', // nextToNodePathStr
+            {}, // insertedNode
+            'before', // position
+            'tree', // subTreeKey
+            '_', // idDelimiter = '_'
+            treeString, // originalTreeString
+            JSON.stringify(treeNewCorrect), // changedCorrectTreeString
+        );
+    }
+    // insert a node where another node exists (_0), position=after
+    { // Forced scope {}
+        let treeNewCorrect = JSON.parse(treeString);
+        treeNewCorrect.splice(1, 0, {});
+        test_createNodeNextToNode_correctMovement(
+            '_0', // nextToNodePathStr
+            {}, // insertedNode
+            'after', // position
+            'tree', // subTreeKey
+            '_', // idDelimiter = '_'
+            treeString, // originalTreeString
+            JSON.stringify(treeNewCorrect), // changedCorrectTreeString
+        );
+    }
+    // insert a node where another node exists (_0_1_0), position=before
+    { // Forced scope {}
+        let treeNewCorrect = JSON.parse(treeString);
+        treeNewCorrect[0]['tree'][1]['tree'].splice(0, 0, {});
+        test_createNodeNextToNode_correctMovement(
+            '_0_1_0', // nextToNodePathStr
+            {}, // insertedNode
+            'before', // position
+            'tree', // subTreeKey
+            '_', // idDelimiter = '_'
+            treeString, // originalTreeString
+            JSON.stringify(treeNewCorrect), // changedCorrectTreeString
+        );
+    }
+    // insert a node where another node exists (_0_1_0), position=after
+    { // Forced scope {}
+        let treeNewCorrect = JSON.parse(treeString);
+        treeNewCorrect[0]['tree'][1]['tree'].splice(1, 0, {});
+        test_createNodeNextToNode_correctMovement(
+            '_0_1_0', // nextToNodePathStr
+            {}, // insertedNode
+            'after', // position
+            'tree', // subTreeKey
+            '_', // idDelimiter = '_'
+            treeString, // originalTreeString
+            JSON.stringify(treeNewCorrect), // changedCorrectTreeString
+        );
+    }
+    // insert a node where the existing node is last in array (_4), position=before
+    { // Forced scope {}
+        let treeNewCorrect = JSON.parse(treeString);
+        treeNewCorrect.splice(4, 0, {});
+        test_createNodeNextToNode_correctMovement(
+            '_4', // nextToNodePathStr
+            {}, // insertedNode
+            'before', // position
+            'tree', // subTreeKey
+            '_', // idDelimiter = '_'
+            treeString, // originalTreeString
+            JSON.stringify(treeNewCorrect), // changedCorrectTreeString
+        );
+    }
+    // insert a node where the existing node is last in array (_4), position=after
+    { // Forced scope {}
+        let treeNewCorrect = JSON.parse(treeString);
+        treeNewCorrect.splice(5, 0, {});
+        test_createNodeNextToNode_correctMovement(
+            '_4', // nextToNodePathStr
+            {}, // insertedNode
+            'after', // position
+            'tree', // subTreeKey
+            '_', // idDelimiter = '_'
+            treeString, // originalTreeString
+            JSON.stringify(treeNewCorrect), // changedCorrectTreeString
+        );
+    }
+    // insert a node where the existing node is last in array (_0_1_0_1), position=before
+    { // Forced scope {}
+        let treeNewCorrect = JSON.parse(treeString);
+        treeNewCorrect[0]['tree'][1]['tree'][0]['tree'].splice(1, 0, {});
+        test_createNodeNextToNode_correctMovement(
+            '_0_1_0_1', // nextToNodePathStr
+            {}, // insertedNode
+            'before', // position
+            'tree', // subTreeKey
+            '_', // idDelimiter = '_'
+            treeString, // originalTreeString
+            JSON.stringify(treeNewCorrect), // changedCorrectTreeString
+        );
+    }
+    // insert a node where the existing node is last in array (_0_1_0_1), position=after
+    { // Forced scope {}
+        let treeNewCorrect = JSON.parse(treeString);
+        treeNewCorrect[0]['tree'][1]['tree'][0]['tree'].splice(2, 0, {});
+        test_createNodeNextToNode_correctMovement(
+            '_0_1_0_1', // nextToNodePathStr
+            {}, // insertedNode
+            'after', // position
+            'tree', // subTreeKey
+            '_', // idDelimiter = '_'
+            treeString, // originalTreeString
+            JSON.stringify(treeNewCorrect), // changedCorrectTreeString
+        );
+    }
+    // insert a node below an node without sub nodes (_0_0_0), position=below
+    { // Forced scope {}
+        let treeNewCorrect = JSON.parse(treeString);
+        treeNewCorrect[0]['tree'][0]['tree'][0]['tree'].push({})
+        test_createNodeNextToNode_correctMovement(
+            '_0_0_0', // nextToNodePathStr
+            {}, // insertedNode
+            'below', // position
+            'tree', // subTreeKey
+            '_', // idDelimiter = '_'
+            treeString, // originalTreeString
+            JSON.stringify(treeNewCorrect), // changedCorrectTreeString
+        );
+    }
+    // insert a node below an node without sub nodes (_0_1_0_1), position=below
+    { // Forced scope {}
+        let treeNewCorrect = JSON.parse(treeString);
+        treeNewCorrect[0]['tree'][1]['tree'][0]['tree'][1]['tree'].push({})
+        test_createNodeNextToNode_correctMovement(
+            '_0_1_0_1', // nextToNodePathStr
+            {}, // insertedNode
+            'below', // position
+            'tree', // subTreeKey
+            '_', // idDelimiter = '_'
+            treeString, // originalTreeString
+            JSON.stringify(treeNewCorrect), // changedCorrectTreeString
+        );
+    }
+    // insert a node below an node with existing sub nodes (_0), position=below
+    { // Forced scope {}
+        let treeNewCorrect = JSON.parse(treeString);
+        treeNewCorrect[0]['tree'].push({})
+        test_createNodeNextToNode_correctMovement(
+            '_0', // nextToNodePathStr
+            {}, // insertedNode
+            'below', // position
+            'tree', // subTreeKey
+            '_', // idDelimiter = '_'
+            treeString, // originalTreeString
+            JSON.stringify(treeNewCorrect), // changedCorrectTreeString
+        );
+    }
+    // insert a node below an node with existing sub nodes (_0_1_0), position=below
+    { // Forced scope {}
+        let treeNewCorrect = JSON.parse(treeString);
+        treeNewCorrect[0]['tree'][1]['tree'][0]['tree'].push({})
+        test_createNodeNextToNode_correctMovement(
+            '_0_1_0', // nextToNodePathStr
+            {}, // insertedNode
+            'below', // position
+            'tree', // subTreeKey
+            '_', // idDelimiter = '_'
+            treeString, // originalTreeString
+            JSON.stringify(treeNewCorrect), // changedCorrectTreeString
+        );
+    }
+
+    // expect(true).toBe(false);
 });
