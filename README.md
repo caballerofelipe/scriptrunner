@@ -85,22 +85,29 @@ vue create scriptrunner
 ```
 And these are the selections made:
 ```bash
-Vue CLI v4.2.3
+Vue CLI v4.5.4
 ? Please pick a preset:
-  default (babel, eslint)
+  Default ([Vue 2] babel, eslint)
+  Default (Vue 3 Preview) ([Vue 3] babel, eslint)
 ❯ Manually select features
 ```
 ```bash
 ? Check the features needed for your project:
+ ◉ Choose Vue version
  ◉ Babel
  ◯ TypeScript
  ◯ Progressive Web App (PWA) Support
  ◉ Router
  ◉ Vuex
-❯◉ CSS Pre-processors
+ ◉ CSS Pre-processors
  ◉ Linter / Formatter
- ◯ Unit Testing
+❯◉ Unit Testing
  ◯ E2E Testing
+```
+```
+? Choose a version of Vue.js that you want to start the project with
+❯ 2.x
+  3.x (Preview)
 ```
 ```bash
 ? Use history mode for router? (Requires proper server setup for index fallback in production) (Y/n)
@@ -115,7 +122,7 @@ row keys)
   Stylus
 ```
 ```bash
-? Pick a linter / formatter config: (Use arrow keys)
+? Pick a linter / formatter config:
 ❯ ESLint with error prevention only
   ESLint + Airbnb config
   ESLint + Standard config
@@ -149,57 +156,20 @@ vue add electron-builder
 This is the selections made:
 ``` bash
 📦  Installing vue-cli-plugin-electron-builder...
-(...)
+(...additional output...)
 ✔  Successfully installed plugin: vue-cli-plugin-electron-builder
 
-? Choose Electron Version (Use arrow keys)
-  ^4.0.0
-  ^5.0.0
-❯ ^6.0.0
+? Choose Electron Version
+  ^7.0.0
+  ^8.0.0
+❯ ^9.0.0
 ```
 ``` bash
-? Add tests with Spectron to your project? No
+? Add tests with Spectron to your project? (Y/n) N
 ```
 
 ### Install `python-shell`
 This project will run python code called by node, that's why `python-shell` will be used.
 ```bash
 npm i python-shell
-```
-
-## Extras
-
-### About Vue DevTools
-If you're having trouble with Vue DevTools, try downgrading to Electron 5. I haven't done it but I would follow the [Initial Installation](#initial-installation) but when adding `electron-builder` I would choose Electron 5.
-
-> Devtools extensions are broken in Electron 6.0.0 and greater  
-See https://github.com/nklayman/vue-cli-plugin-electron-builder/issues/378 for more info  
-Electron will not launch with Devtools extensions installed on Windows 10 with dark mode
-
-From `src/background.js`:
-```javascript
-/* (...) */
-
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.on('ready', async () => {
-  if (isDevelopment && !process.env.IS_TEST) {
-    // Install Vue Devtools
-    // Devtools extensions are broken in Electron 6.0.0 and greater
-    // See https://github.com/nklayman/vue-cli-plugin-electron-builder/issues/378 for more info
-    // Electron will not launch with Devtools extensions installed on Windows 10 with dark mode
-    // If you are not using Windows 10 dark mode, you may uncomment these lines
-    // In addition, if the linked issue is closed, you can upgrade electron and uncomment these lines
-    // try {
-    //   await installVueDevtools()
-    // } catch (e) {
-    //   console.error('Vue Devtools failed to install:', e.toString())
-    // }
-
-  }
-  createWindow()
-})
-
-/* (...) */
 ```

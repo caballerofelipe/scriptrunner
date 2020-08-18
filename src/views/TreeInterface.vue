@@ -1,7 +1,7 @@
 <template>
 <div id="treeInterface">
     <controls />
-    <button id="debug_button" @click='showStoreState = !showStoreState'>showStoreState</button><!-- FCG: WARNING/REMOVE for debugging. -->
+    <input type="button" id="debug_button" value="showStoreState" @click='showStoreState = !showStoreState'><!-- FCG: WARNING/REMOVE for debugging. -->
     <pre id="debug_pre" v-if='showStoreState'>{{wholeState}}</pre><!-- FCG: WARNING/REMOVE for debugging. -->
     <div id="treeContainer">
         <subTreesRow v-bind:subTreesRow='subTreesRow' v-bind:style="{ transform: 'scale('+treeZoom+')', transformOrigin: 'left top', width: 'calc(100%/'+treeZoom+')', height: 'calc(100%/'+treeZoom+')' }" />
@@ -72,6 +72,24 @@ export default {
                 border: 0;
             }
         }
+    }
+}
+
+input[type=button], button {
+    border: 1px solid lightgray;
+    border-radius: 3px;
+    background: white;
+    margin: 1px;
+    color: #333;
+    outline: 0;
+
+    &:hover {
+        background: #eee;
+        // color: white;
+    }
+    &:active {
+        background: lightgray;
+        color: black;
     }
 }
 
