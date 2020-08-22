@@ -14,14 +14,7 @@ export default {
     name: 'Controls',
     methods: {
         new_dragstart(event) {
-            eventsBus.setEventData('node', 'creation', {
-                newNode: {
-                    id: '',
-                    nodeValue: 'NEW',
-                    originalID: 'NEW, no ID',
-                    processTree: []
-                }
-            });
+            eventsBus.setEventData('node', 'creation');
             event.target.style.opacity = 0.2;
         },
         new_dragend(event) {

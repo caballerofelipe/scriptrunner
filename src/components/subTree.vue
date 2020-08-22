@@ -2,6 +2,7 @@
 <div class="subTree">
     <div class="nodeAndSubTree" draggable="true" @dragstart.stop='nodeAndSubTree_dragstart' @dragend.stop.prevent='nodeAndSubTree_dragend'>
         <div class="node" @dragenter.prevent.stop='node_dragenter'>
+            <div class="nodeRemove" @click="node_remove">X</div>
             {{node.nodeValue}}<!-- FCG to keep text inside, should be max 33 char -->
             <div style="font-size: 8px; color: lightgreen;">
                 <!-- DEBUG -->
@@ -136,7 +137,6 @@ export default {
                                 that.$store.commit({
                                     type: 'createNodeNextToNode',
                                     nextToNodePathStr: that.node.id,
-                                    newNode: eventData.payload.newNode,
                                     position: element.action
                                 });
                                 break;
@@ -146,6 +146,12 @@ export default {
                     }
                 }, false);
             })
+        },
+        node_remove() {
+            this.$store.commit({
+                type: 'removeNode',
+                nodePathStr: this.node.id
+            });
         }
     },
     mounted() {}
@@ -199,11 +205,37 @@ export default {
     white-space: normal;
     word-wrap: break-word;
     cursor: move;
+    position: relative;
 
     // To center bubble and content.
     display: inline-flex;
     flex-direction: column;
     justify-content: center;
+}
+.nodeRemove {
+    background: #8284d2aa;
+    color: white;
+    border-radius: 100%;
+    width: 10px;
+    height: 10px;
+    padding: 5px;
+    white-space: normal;
+    word-wrap: break-word;
+    position: absolute;
+    top: 0;
+    right: 0;
+    cursor: default;
+    border: 1px solid #ffffffaa;
+
+    // To center bubble and content.
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+
+    &:hover {
+        background: #8284d2dd;
+        border: 1px solid #ffffffdd;
+    }
 }
 
 .dnd_placeholder {

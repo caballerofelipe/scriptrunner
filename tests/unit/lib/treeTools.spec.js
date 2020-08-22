@@ -948,6 +948,26 @@ test('treeTools.createNodeNextToNode', () => {
             JSON.stringify(treeNewCorrect), // changedCorrectTreeString
         );
     }
+});
 
+/**
+ * Testing treeTools.listNodes
+ *
+ * Signature:
+ * function listNodes(tree, subTreeKey, mode = 'breadth', copyTree = false)
+ */
+test('treeTools.listNodes', () => {
+    throw 'treeTools.listNodes: tests pending.';
+    // expect(true).toBe(false);
+});
+
+/**
+ * Testing treeTools.removeNode
+ *
+ * Signature:
+ * function listNodes(tree, subTreeKey, mode = 'breadth', copyTree = false)
+ */
+test('treeTools.removeNode', () => {
+    throw 'treeTools.removeNode: tests pending.';
     // expect(true).toBe(false);
 });

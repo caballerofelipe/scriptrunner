@@ -75,7 +75,8 @@ export default {
     }
 }
 
-input[type=button], button {
+button,
+input[type=button] {
     border: 1px solid lightgray;
     border-radius: 3px;
     background: white;

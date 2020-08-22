@@ -6,6 +6,14 @@ import processTree from './processTree/processTree.small.oneParent'
 
 Vue.use(Vuex)
 
+// This is used to set a new node's information
+let newNode = {
+    id: '',
+    nodeValue: 'NEW',
+    originalID: 'NEW, no ID',
+    processTree: []
+};
+
 /**
  * Sets a node's id as a string using the parent's id as a base string.
  * Used to assign an ID to every node in the tree, using the parent's id as a base string. Reasons:
@@ -18,7 +26,7 @@ function recursiveAssignID(processTree, parentName = '') {
     processTree.map((node, index) => {
         node.id = `${parentName}_${index}`;
         recursiveAssignID(node.processTree, `${parentName}_${index}`)
-    })
+    });
 }
 
 /**
@@ -46,6 +54,21 @@ function processTree_initializeIDs(processTree) {
     return processTree;
 }
 
+/**
+ * After changes in the tree (and possibly the state) assigns ID to every node and creates a new node if the resulting tree is empty.
+ * @param  {processTree} processTree  The processTree.
+ * @return {processTree}              The processTree.
+ */
+function state_cleanup(state) {
+    if (state.processTree.length == 0) {
+        // console.log('I am empty')
+        state.processTree = [newNode];
+        recursiveAssignID(state.processTree); // Updates processTree IDs according to changes in it
+    } else {
+        recursiveAssignID(state.processTree); // Updates processTree IDs according to changes in it
+    }
+}
+
 export default new Vuex.Store({
     state: {
         processTree: processTree_initializeIDs(processTree),
@@ -65,26 +88,38 @@ export default new Vuex.Store({
                 payload.position, // position
                 'processTree' // subTreeKey
             );
-            recursiveAssignID(state.processTree); // Updates processTree IDs according to changes in it
+            state_cleanup(state);
         },
         // Creates a new node next to an existing one using treeTools.createNodeNextToNode
         // Payload must include:
         // - payload.nextToNodePathStr
-        // - payload.newNode, containing the object that represents the node
         // - payload.position
         createNodeNextToNode(state, payload) {
             let processTreeTMP = treeTools.createNodeNextToNode(
                 state.processTree, // tree
                 payload.nextToNodePathStr, // nextToNodePathStr
-                payload.newNode, // insertedNode
+                newNode, // insertedNode /* FCG: This node should be configured somewhere to define how it is. */
                 payload.position, // position
                 'processTree', // subTreeKey
-
                 '_', // idDelimiter
                 true // copyTree
             );
             state.processTree = processTreeTMP;
-            recursiveAssignID(state.processTree); // Updates processTree IDs according to changes in it
+            state_cleanup(state);
+        },
+        // Removes a given node using treeTools.removeNode
+        // Payload must include:
+        // - payload.nodePathStr
+        removeNode(state, payload) {
+            let processTreeTMP = treeTools.removeNode(
+                state.processTree, // tree
+                payload.nodePathStr, // nodePathStr
+                'processTree', // subTreeKey
+                '_', // idDelimiter
+                true // copyTree
+            );
+            state.processTree = processTreeTMP;
+            state_cleanup(state);
         },
         processTreeZoomBy(state, payload) {
             state.processTreeZoom += 1 * payload.zoomBy;

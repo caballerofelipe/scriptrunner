@@ -1,10 +1,10 @@
 import Vue from 'vue'
-import App from './App.vue'
-import router from './router'
-import store from './store'
+import App from '@/App.vue'
+import router from '@/router'
+import store from '@/store'
 
-Vue.config.productionTip = false;
-window.vueClass = Vue; /* FCG: WARNING for debugging purposes. */
+Vue.config.productionTip = false; /* FCG: WARNING for debugging purposes. */
+window.theVueClass = Vue; /* FCG: WARNING for debugging purposes. */
 window.theStore = store; /* FCG: WARNING for debugging purposes. */
 
 // window.vueEL = new Vue({...App, store}).$mount('#app') /* FCG: WARNING/REVIEW THIS works! is it a better way?. */
