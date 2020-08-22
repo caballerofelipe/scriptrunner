@@ -1,7 +1,4 @@
 import objTools from './objTools';
-// import {
-//     PythonShell
-// } from 'python-shell';
 
 /**
  * Get a path in a recursive tree structure.
