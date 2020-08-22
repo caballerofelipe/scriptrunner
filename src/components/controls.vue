@@ -1,5 +1,7 @@
 <template>
 <div id="control">
+    <input type="button" value="Run">
+    <input type="button" value="Stop">
     <input type="button" value="+zoom" @click='treeZoomIn'>
     <input type="button" value="=zoom" @click='treeZoomReset'>
     <input type="button" value="-zoom" @click='treeZoomOut'>

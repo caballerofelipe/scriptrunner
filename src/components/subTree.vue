@@ -3,8 +3,10 @@
     <div class="nodeAndSubTree" draggable="true" @dragstart.stop='nodeAndSubTree_dragstart' @dragend.stop.prevent='nodeAndSubTree_dragend'>
         <div class="node" @dragenter.prevent.stop='node_dragenter'>
             <div class="nodeRemove" @click="node_remove">X</div>
-            {{node.nodeValue}}<!-- FCG to keep text inside, should be max 33 char -->
+            <!-- FCG to keep text inside, should be max 33 char -->
+            <!-- {{node.nodeValue}} -->
             <div style="font-size: 8px; color: lightgreen;">
+                <textarea v-model="node.nodeValue" placeholder="Python file to be run"></textarea>
                 <!-- DEBUG -->
                 (id: <b>{{node.id}}</b><br>initial:<br><b>{{node.originalID}}</b>)
             </div>

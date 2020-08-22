@@ -2,14 +2,14 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import treeTools from '@/lib/treeTools.js'
 // Change between large and small processTree, use processTree.{small,small.oneParent,large,large.oneParent}
-import processTree from './processTree/processTree.small.oneParent'
+import processTree from './processTree/processTree.small.oneParent.empty'
 
 Vue.use(Vuex)
 
 // This is used to set a new node's information
 let newNode = {
     id: '',
-    nodeValue: 'NEW',
+    nodeValue: '',
     originalID: 'NEW, no ID',
     processTree: []
 };
