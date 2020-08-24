@@ -170,3 +170,8 @@ import {
 } from 'electron'
 window.ipcRenderer = ipcRenderer
 ```
+
+# Possibly useful information
+- [Passing configuration to Vue.js. How to pass configuration and initial… | by Michał Męciński | codeburst](https://codeburst.io/passing-configuration-to-vue-js-1b96fa8f959)
+- [10 Good Practices for Building Large Vue.js Projects](https://www.telerik.com/blogs/10-good-practices-building-maintaining-large-vuejs-projects#6usedconfigtoaccessyourenvironmentvariablesespeciallyusefulintemplates)
+- [Building a VueJS App with Firebase Hosting and Validation | by Shanika Wickramasinghe | Bits and Pieces](https://blog.bitsrc.io/building-a-vuejs-app-with-firebase-hosting-and-validation-7fe12911cd89)
